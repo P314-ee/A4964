@@ -164,7 +164,7 @@ U8 A4964_SPI (U16 Data ,U8 WR ,U16 *rcvData)
     sDataH = Data >> 8;
     sDataL = Data;
     
-    cnt = 3;
+    cnt = 1;
     
     SPI_Open();
     do
@@ -266,7 +266,7 @@ uint32_t A4964_ReadBack_Select (uint8_t rSel)
         tmp = (U32)receiveData*528/100; // 114*0.0528 = 6.0192V, --> 6.01V
         break;
     case RBS_TEMPERATURE:
-        tmp = 367.7 - (receiveData * 451 / 100);
+        tmp = 367.7 - (receiveData * 451 / 1000);
         break;
     case RBS_DEMAND_INPUT:
         tmp = receiveData;
@@ -286,35 +286,35 @@ uint8_t A4964_ReadReg(uint8_t regAddr, uint16_t *regValue)
 {
     uint16_t cmd = 0;
     uint16_t dummyRead;
-    
+
     cmd = (regAddr & 0x1F) << 11;
-    
+
     // Gửi frame chọn thanh ghi
     A4964_SPI(cmd, cmdRD, &dummyRead);
     *regValue = (dummyRead >> 1) & 0x03FF;
     HAL_Delay(10);
     // A4964_SPI(0x0000, cmdRD, regValue);
-    
+
     return 1;
 }
-
 
 uint8_t A4964_ReadReg28()
 {
     uint16_t cmd = 0;
     uint16_t dummyRead;
     uint16_t regValue;
-    
+
     cmd = (28 & 0x1F) << 11;
-    
+
     // Gửi frame chọn thanh ghi
     A4964_SPI(cmd, cmdRD, &dummyRead);
     // regValue = (dummyRead >> 1) & 0x03FF;
     HAL_Delay(10);
     A4964_SPI(0x0000, cmdRD, &regValue);
-    
+
     return regValue;
 }
+
 void A4964_ReadAllRegs(void)
 {
     uint16_t regValue;
@@ -355,7 +355,7 @@ void A4964_ReadAllRegs(void)
 //==================================================
 void A4964_init2 (void)
 {
-    int i = 0;
+	int i = 0;
     for (i=0;i<32;i++)  // reg0 ~ reg31
         regConfig[i] = A4964_CONFIG_EXL[i];
     // -- Sense Amp Maximum Threshold
@@ -403,7 +403,7 @@ void A4964_init2 (void)
     // fSH = [127 + (n * 128)] * fRES (Hz)
     // fSH = 820 -> n = 15
 
-    configSpeed(SR_0_4HZ, 0, 15); // REG 22 & 23 
+    configSpeed(SR_0_1HZ, 0, 15); // REG 22 & 23
 
     //----------------------------------------------
     // uint8_t configSpeedAccel (uint16_t accHzX10,uint8_t gain)
@@ -651,7 +651,7 @@ void A4964_init2 (void)
     // n = 0~31 ,  DH is 3.125% to 100%
     // input range: 0 ~ 100
 
-    configStartupAlign(100, 3); // hold time ms, duty cycle percent  // REG 15
+    configStartupAlign(2000, 30); // hold time ms, duty cycle percent  // REG 15
 
 
     //----------------------------------------------
@@ -677,7 +677,7 @@ void A4964_init2 (void)
     // HR_50P
     // HR_100P
 
-    configStartupMotor(STM_COAST_OFF, RSC_RESTART_OFF, 75, HR_0P);  // REG 16
+    configStartupMotor(STM_COAST_ON, RSC_RESTART_OFF, 75, HR_100P);  // REG 16
 
     //----------------------------------------------
     // uint8_t configWindmill(DISABLED, 7, 50); // freq hz, duty cycle percent
@@ -719,7 +719,7 @@ void A4964_init2 (void)
     // n = 0~15 , The range of DS1 is 6.25% to 100%
     // input range: 0 ~ 100
     // REG 18 // REG 19
-    configRamp(15, 3,  325, 3);  // start(0.5~8.0) hz, duty(0~100), end freq (10.0~47.5), duty(0~100)
+    configRamp(5, 15, 15, 60);  // start(0.5~8.0) hz, duty(0~100), end freq (10.0~47.5), duty(0~100)
 
 
     //------------------------------------------------------
@@ -741,7 +741,7 @@ void A4964_init2 (void)
     // SFS_1HZ     |SFS_15HZ
     // input range : 0 ~ 15
     // REG 20
-    configRampStep(10, SFS_1HZ); // step time (10 ms to 300 ms.) ms, step freq
+    configRampStep(300, SFS_0_4HZ); // step time (10 ms to 300 ms.) ms, step freq
 
     //------------------------------------------------------
     // configPhaseAdvance(mode, gain, degrees);
@@ -813,7 +813,7 @@ void A4964_init2 (void)
     // REG 11
     configCommSteadyPow2(0, 0);     // P=2^0=1, I=2^0=1
      // REG 12
-    configCommTransientPow2(0, 0);  // P=2^0=1, I=2^0=1
+    configCommTransientPow2(2^6, 2^6);  // P=2^0=1, I=2^0=1
 
 
     //----------------------------------------------
@@ -827,7 +827,7 @@ void A4964_init2 (void)
     // DGS_PULSE_HIGH
     // DGS_PULSE_FG
  // REG 29
-    configDIAG (DGS_LOW_ON_FAULT);
+    configDIAG (DGS_FG);
 
     //----------------------------------------------
     // uint8_t configDataOutput (uint8_t RBS);
@@ -1256,6 +1256,7 @@ uint8_t configDriveMode (uint8_t drm)
 
     return stat;
 }
+
 
 //==============================================
 // uint8_t configBRAKE (uint8_t brk)

@@ -65,22 +65,23 @@ static void MX_SPI2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// Definition of the 29:Readback Select registers as a complete write command. 
+// Definition of the 29:Readback Select registers as a complete write command.
 #define REG_RBS_AMP ((uint16_t) 0b1110110000000101)   // RBS[2:0] [ 010 ] Avr. supply current
 #define REG_RBS_VOLT ((uint16_t)0b1110110000000110) // RBS[2:0] [ 011 ] Supply Voltage
-#define REG_RBS_TEMP ((uint16_t) 0b1110110000001001)  // RBS[2:0] [ 100 ] Chip temperatute 
+#define REG_RBS_TEMP ((uint16_t) 0b1110110000001001)  // RBS[2:0] [ 100 ] Chip temperatute
 #define REG_RBS_APADV ((uint16_t) 0b1110110000001110)  // RBS[2:0] [ 111 ] Applied phase advance
 #define REG_RBS_MSPEED ((uint16_t) 0b1110110000000011)  // RSB[2:0] [ 001 ] Motor speed
 // Definition of the 25: System register, the OPM 1 for the 'Stand-alone with SPI'
 #define REG_OPM_1 ((uint16_t) 0b1100101001000000)  // REG_25_SYS_OPM
-// Definition of the 31: Read Only regiter 
+// Definition of the 31: Read Only regiter
 #define REG_RD_ONLY ((uint16_t) 0b1111100000000000) // First 15-11 bits are adress 10-0 value in bin
-#define REG_RBS0_DIAG ((uint16_t) 0b1110110000000001)  //Definitioin of the Redback Select REG for DIAG output 
+#define REG_RBS0_DIAG ((uint16_t) 0b1110110000000001)  //Definitioin of the Redback Select REG for DIAG output
 
 
 // ------------VARIABLES------------
 // rdng stays for "reading value"
 
+uint16_t reg28;
 uint16_t rdng_amp;
 uint16_t rdng_volt;
 uint16_t rdng_temp;
@@ -93,39 +94,39 @@ uint16_t rdng_diag;
 void voltage(){
   uint16_t sendData = REG_RBS_VOLT;
   uint16_t rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 
   HAL_Delay(2);
   sendData = REG_RD_ONLY;
   rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 }
 
 void temperature(){
   uint16_t sendData = REG_RBS_TEMP;
   uint16_t rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 
   HAL_Delay(2);
   sendData = REG_RD_ONLY;
   rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 }
 
 void applied_phase_advance(){
@@ -159,38 +160,38 @@ void motor_speed(){
 }
 
 void diagnostics(){
-  
+
   uint16_t sendData = REG_RBS0_DIAG;
   uint16_t rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 
   HAL_Delay(2);
   sendData = REG_RD_ONLY;
   rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 }
 
 void set_OPM_1(){
 
-  
+
   uint16_t sendData = REG_OPM_1;
   uint16_t rvData = 0;
-  
+
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_RESET);
-  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY); 
+  HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&sendData, (uint8_t*)rvData, 1, HAL_MAX_DELAY);
   HAL_GPIO_WritePin(A4964_CS_GPIO_Port, A4964_CS_Pin, GPIO_PIN_SET);
-  
+
 }
-aaaaaaaaaaaaaaaaaaaaaaaaaaaa
-void loop() { 
+
+void loop() {
   set_OPM_1();
 //  diagnostics();
 }
@@ -231,10 +232,12 @@ int main(void)
   HAL_Delay(500);
 
   HAL_GPIO_WritePin(A4964_WAKEUP_GPIO_Port, A4964_WAKEUP_Pin, GPIO_PIN_SET);
+  HAL_Delay(20);
   A4964_init2();
   HAL_Delay(500);
+  configRUN(1);
   A4964_ReadAllRegs();
-  A4964_Demand_Input (510);
+  A4964_Demand_Input (50);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -251,6 +254,7 @@ int main(void)
         rdng_temp = A4964_ReadBack_Select(RBS_TEMPERATURE);
         rdng_mspeed = A4964_ReadBack_Select(RBS_MOTOR_SPEED);
         rdng_diag = A4964_ReadBack_Select(RBS_DIAGNOSTIC);
+//        reg28 = A4964_ReadReg28();
         HAL_Delay(500); // 500 ms
   }
   /* USER CODE END 3 */
@@ -331,7 +335,7 @@ static void MX_SPI2_Init(void)
   /* USER CODE END SPI2_Init 2 */
 
 }
-aaaaa
+
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -384,7 +388,7 @@ uint16_t SPI_Exchange_Byte(uint16_t data)
 {
     uint16_t rx;
     uint16_t tx = data;
-    HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&tx, (uint8_t*)&rx, 1, HAL_MAX_DELAY); 
+    HAL_SPI_TransmitReceive(&hspi2, (uint8_t*)&tx, (uint8_t*)&rx, 1, HAL_MAX_DELAY);
     return rx;
 }
 /* USER CODE END 4 */
