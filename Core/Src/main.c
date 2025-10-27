@@ -81,7 +81,6 @@ static void MX_SPI2_Init(void);
 // ------------VARIABLES------------
 // rdng stays for "reading value"
 
-uint16_t reg28;
 uint16_t rdng_amp;
 uint16_t rdng_volt;
 uint16_t rdng_temp;
@@ -232,12 +231,10 @@ int main(void)
   HAL_Delay(500);
 
   HAL_GPIO_WritePin(A4964_WAKEUP_GPIO_Port, A4964_WAKEUP_Pin, GPIO_PIN_SET);
-  HAL_Delay(20);
   A4964_init2();
   HAL_Delay(500);
-  configRUN(1);
   A4964_ReadAllRegs();
-  A4964_Demand_Input (50);
+  A4964_Demand_Input (510);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -254,7 +251,6 @@ int main(void)
         rdng_temp = A4964_ReadBack_Select(RBS_TEMPERATURE);
         rdng_mspeed = A4964_ReadBack_Select(RBS_MOTOR_SPEED);
         rdng_diag = A4964_ReadBack_Select(RBS_DIAGNOSTIC);
-//        reg28 = A4964_ReadReg28();
         HAL_Delay(500); // 500 ms
   }
   /* USER CODE END 3 */
